@@ -1,7 +1,0 @@
-no-resolv
-server=127.0.0.1#1053
-# for router itself
-ipset=/.google.com.tw/router
-ipset=/.github.com/router
-ipset=/.github.io/router
-ipset=/.raw.githubusercontent.com/router
