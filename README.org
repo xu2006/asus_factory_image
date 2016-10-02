@@ -1,0 +1,177 @@
+#+TITLE: 华硕原厂官方固件-AC68U设置教程
+#+AUTHOR: Gy408
+#+EMAIL:
+#+DATE:  Time-stamp: <2016-10-02>
+#+DESCRIPTION:
+#+TAGS: :AD:AD:
+#+STARTUP: showall
+#+TODO: TODO | DONE| CANCELED
+#+PRIORITIES: A B C
+#+TAGS: @ERP(e)  @Network(n)  @helpdesk(d)  @support(s)  @PROJECT(p) @Idea(i) @Call(c) @task(t)
+#+LANGUAGE:zh-CN
+#+OPTIONS:   H:4 num:t toc:nil \n:nil @:t ::t |:t ^:nil -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="../css2/org.css" />
+#+LaTeX_CLASS:cn-article
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:
+#+LINK_HOME:
+#+XSLT:
+#+BABEL: :exports code
+# 语言+LANGUAGE:zh-CN en
+# *粗体* /斜体/ :引用 =词引用= 脚注=1=  链接[[link][description]] 或者 [[link]] /斜体/  _下划线_
+# 显示图片[[file://]] 中间加两个==,如==file:///home/hls/图片/选区_023.png= =
+# ==中间数字,代表参考文献,++代表文字删除线,~~
+# tex画水平线\hrule ,在html中<hr/>
+# c-c ; 注释,不显示在导出的文档中
+# 如果+OPTIONS: toc:t  中修改为0,则无法显示索引
+#+BEGIN_LaTeX
+\setcounter{page}{1}
+\pagenumbering{arabic}
+#+END_LaTeX
+* 关于华硕原厂官方固件
+来源于 =Tomato=  ，在众多厂商的原厂官方固件中，华硕原厂官方固件是足够优秀的。华硕原厂官方固件，尤其适合
+不喜欢折腾的人。
+本教程，适合喜欢 *原厂官方* 固件，希望 *稳定* 、速度最好，并且希望在原厂官方固件的基础上面进行适当扩展的使用者。
+本教程，在结合 =RT-AC68U= 平常的使用进行的，原则上适合其他型号的华硕型号。比如 =RT-AC87U= 、 =RT-AC68U= 等。
+
+* 华硕原厂固件主要特性
+
+** 优点
+- 稳定
+- 速度好
+- 功能全面
+** 缺点
+- 没有 =Shadowsocks= ，对我使用来说，华硕原厂固件已足够优秀，唯一差的就是 =Shadowsocks= 。
+- 原厂固件没有JFFS2
+- entware不支持
+
+* Merlin原版固件
+和华硕原厂固件相比， =Merlin= 默认支持JFFS2。稳定性和速度也较好。
+但在我使用的过程中，发现  =Merlin= 和 =ASUS原厂= 固件两者之间，并
+没有特别大的差异。 =Merlin= 能做的， 同样 =ASUS原厂= 也能设置或实现。
+因此，我还是使用  =ASUS原厂= 固件。本教程也是基于 =ASUS原厂= 固件。
+
+
+* 刷机
+=AC68U= 可以刷下面类型的固件，分别是：
+- 华硕原厂官方固件， [[http://www.asus.com.cn/Networking/RTAC68U/HelpDesk_Download/][下载地址]]
+- 原版 =Merlin= ，[[https://sourceforge.net/projects/asuswrt-merlin/files/][下载地址]]
+- =Tomato= ，[[http://tomato.groov.pl/download/K26ARM/][下载地址]]
+- 其他第三方固件
+刷以上不同类型固件的方法，都是类似的。无非就2种方法。
+** WEB刷机方法
+=注意，华硕官方最新的固件已限制了第三方未经验证的固件从WEB刷入，3.0.0.4_380_2717版本是未限制最后一个版本=
+- 登录 [[http://192.168.1.1][华硕固件默认后台地址http://192.168.1.1]] , 默认用户 =admin= 和默认密码 =admin=
+- 进入 =系统设置=  ---->  =固件升级= ，点击 =新固件文件= 选择文件后，最后点击 =上传=
+
+
+** 救援模式刷机
+=以上方法，无法刷机的时候，可采用救援模式。救援模式，以上的不同固件类型，都可以使用此方式=
+- 手工设置电脑的网络获取方式。本机IP地址为 =192.168.1.x= (不等于1)。
+- 先按下Asus 无线路由器背面的 =电源= 按键。
+- 之后，用牙签或其他尖物，按住 =RESTORE= 按键约5秒，同时按下电源按钮。
+- 看到路由器的 =PWR= 灯号会闪烁，此为进入救援模式。
+- 浏览器访问 [[http://192.168.1.1][救援模式地址http://192.168.1.1]]
+
+* 开启原厂固件JFFS2
+
+原厂固件开启 =JFFS2= ，需要按照下面的步骤。
+
+** 开启SSH或Telnet
+
+- 刷机完成后。第一件事情，需要开启 =SSH= 及 =Telnet= 。 建议开启 =SSH= ，更方便和安全。
+- 进入路由器后台，并点击 =系统设置= 菜单
+- 依次点击 =系统设置=
+Enable SSH ： 选择 =是= 或 =LAN only=
+SSH Port   ： 默认22
+Allow Password Login  ： =是=
+Authorized Keys ： 建议设置key，访问方便。
+
+
+
+** 开启华硕原厂JFFS2
+- 开启了SSH后。用SSH登录路由器。
+
+#+BEGIN_SRC sh
+ssh -p 22 admin@192.168.1.1
+#+END_SRC
+
+- 开启JFFS2，在SSH下面输入下面命令
+
+  #+BEGIN_SRC sh
+nvram set jffs2_on=1
+nvram set jffs2_enable=1
+nvram set jffs2_format=1
+nvram set jffs2_scripts=1
+nvram commit
+  #+END_SRC
+
+- 最后重启
+
+  #+BEGIN_SRC sh
+reboot
+  #+END_SRC
+
+- 经过了以上步骤后，重启后，华硕原厂固件便启用了 =JFFS2=  和 =SCRIPTS= 的功能。
+
+** 验证是否启用了JFFS2
+- 登录SSH，用下面命令。
+
+  #+BEGIN_SRC sh
+nvram show | grep "jffs"
+  #+END_SRC
+
+- 正常情况下，显示下面结果即启用了JFFS2。注意重启后，format的值会等于 =0=
+
+  #+BEGIN_SRC html
+jffs2_on=1
+size: 47811 bytes (17725 left)
+jffs2_exec=
+jffs2_enable=1
+jffs2_format=0
+jffs2_scripts=1
+  #+END_SRC
+- 另外，开启JFFS成功后，才能安装 =entware= 。 否则安装 =entware= 也是不会成功的。
+
+
+
+* 安装entware
+启用了 =JFFS= 后，方能安装entware。 安装方法如下：
+- 插入U盘，U盘格式化为 =EXT2= 、 =EXT3= 或 =EXT4= 都可以。格式化的方法，可以用电脑格式化。或在SSH下面。
+
+#+BEGIN_SRC sh
+    mount #查看分区格式是否ext2或ext3 格式,如果不是,需要将将sda1格式化为ext2或ext3.
+    umount /mnt/sda1  #先卸载才能格式化 umount /tmp/mnt/awrt
+    mkfs.ext3 /dev/sda1 #格式化成ext3.
+    mount /dev/sda1 /mnt/sda1 #重新挂载好.　
+#+END_SRC
+
+=U盘只格式化一次就可以了。不用每次都格式化。=
+
+- 登录 =SSH=
+- 安装 =entware= ，安装步骤操作即可。
+
+  #+BEGIN_SRC sh
+cd /tmp
+wget -c -O entware-ngu-setup.sh http://goo.gl/hshQkA
+chmod +x ./entware-ngu-setup.sh
+./entware-ngu-setup.sh
+  #+END_SRC
+
+- 安装完成后， =opkg= 命令便可以使用了。可以在 =SSH= 内测试。
+
+* 通过OPKG 安装插件
+安装了 =entware= 后，可以通过opkg安装各种插件。例如：
+
+#+BEGIN_SRC sh
+opkg install nano curl
+opkg install shadowsocks-libev chinadns
+#+END_SRC
+
+可选择性安装所需插件。
+
+* SS翻墙方案
+
+- 一旦路由器 能正常上网后，可以设置翻墙。翻墙需要shadowsocks帐号及密码，shadowsocks的服务端建议开启 UDP转发
