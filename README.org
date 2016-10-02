@@ -173,5 +173,129 @@ opkg install shadowsocks-libev chinadns
 可选择性安装所需插件。
 
 * SS翻墙方案
+下面为 =ASUS= 原厂固件，设置ss。ss的设置方式，均通过命令行。
+ss翻墙方案，有很多。选择一种即可。下面主要介绍其中一种。
 
-- 一旦路由器 能正常上网后，可以设置翻墙。翻墙需要shadowsocks帐号及密码，shadowsocks的服务端建议开启 UDP转发
+下面介绍 =大陆白名模式+ssr++pdnsd+dns2stock= 的翻墙模式。如果不使用 =SSR= ，使用 =SS= 那
+只需要将类似 =rss-redir= 用 =ss-redir= 替换即可。
+
+** 大陆白名模式+ssr++pdnsd+dns2stock
+*** 设置ssr
+
+#+BEGIN_SRC sh
+cd /jffs
+mkdir -p /jffs/ss/configs
+
+cat << "EOF" >/jffs/ss/configs/ss.json
+{
+    "server":"123.45.6.78",
+    "server_port":8888,
+    "local_port":1089,
+    "password":"1234",
+    "timeout":600,
+    "protocol":"origin",
+    "obfs":"plain",
+    "obfs_param":"",
+    "method":"rc4-md5"
+}
+
+EOF
+
+#+END_SRC
+
+- 以上设置，将 =server= 、 =server_port= 、 =password= 及 其他参数设置为你SSR服务器的。
+
+*** 设置pdnsd
+
+#+BEGIN_SRC sh
+
+ cd /jffs/ss/configs
+touch pdnsd.cache
+
+
+cat << "EOF" >/jffs/ss/configs/pdnsd.conf
+global {
+perm_cache=2048;
+cache_dir="/jffs/ss/configs/";
+run_as="nobody";
+server_port = 1053;
+server_ip = 127.0.0.1;
+status_ctl = on;
+query_method=udp_only;
+min_ttl=24h;
+max_ttl=1w;
+timeout=10;
+}
+
+server {
+label= "RT-AC68U";
+ip = 127.0.0.1;
+port = 1099;
+root_server = on;
+uptest = none;
+}
+EOF
+#+END_SRC
+
+*** 设置dnsmasq
+
+- dnsmsq 设置文件
+#+BEGIN_SRC sh
+ cd /jffs/ss/configs
+
+cat << "EOF" >/jffs/configs/dnsmasq.conf
+conf-dir=/jffs/configs/dnsmasq.d
+no-resolv
+server=127.0.0.1#1053
+EOF
+
+#+END_SRC
+
+- 建立dnsmasq白名单
+
+#+BEGIN_SRC sh
+mkdir -p /jffs/configs/dnsmasq.d
+touch gfw_whitelist.conf
+#+END_SRC
+
+- 下面是 =gfw_whitelist= 文件的内容
+
+  #+BEGIN_SRC html
+server=/.163.com/202.96.128.166
+server=/.qq.cm/202.96.128.166
+server=/.qq.com/202.96.128.166
+server=/.qq.net/202.96.128.166
+.............
+  #+END_SRC
+
+*** 安装所需文件
+ - 安装所需要的执行程序文件
+   可以将自己编译或他人编译的执行文件，放如下面目录 =/jffs/ss/bin=
+   将当前目录下面的所有执行文件 放到路由器相关目录下面
+   #+BEGIN_SRC sh
+scp -P 2223 -r ./*  admin@192.168.1.1:/jffs/ss/bin
+   #+END_SRC
+
+*** 翻墙上网
+
+#+BEGIN_SRC sh
+killall dnsmasq  >/dev/null 2>&1
+dnsmasq -c 1500 -C /jffs/configs/dnsmasq.conf --log-async  >/dev/null 2>&1
+
+killall rss-local  >/dev/null 2>&1
+killall rss-redir  >/dev/null 2>&1
+killall dns2socks  >/dev/null 2>&1
+killall pdnsd  >/dev/null 2>&1
+/jffs/ss/bin/rss-local -b 0.0.0.0 -l 23456 -c /jffs/ss/configs/ss.json -u -f /var/run/sslocal1.pid  >/dev/null 2>&1
+/jffs/ss/bin/rss-redir -b 0.0.0.0 -c /jffs/ss/configs/ss.json -f /var/run/shadowsocks.pid  >/dev/null 2>&1
+/jffs/ss/bin/dns2socks 127.0.0.1:23456 8.8.8.8:53 127.0.0.1:1099  >/dev/null 2>&1
+/jffs/ss/bin/pdnsd --daemon -c /jffs/ss/configs/pdnsd.conf -p /var/run/pdnsd.pid  >/dev/null 2>&1
+
+sh /jffs/ss/ss-firewall >/dev/null 2>&1
+#+END_SRC
+
+以上文件，可以放到 =wan-start=
+
+测试 [[www.youtube.com][www.youtube.com]] 和 [[www.google.com][www.google.com]] 都正常，表示翻墙正常。
+
+以上翻墙文件，可以参考git 目录。

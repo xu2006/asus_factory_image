@@ -1,0 +1,11 @@
+{
+    "server":"123.45.67.8",
+    "server_port":8888,
+    "local_port":1089,
+    "password":"1234",
+    "timeout":600,
+    "protocol":"origin",
+    "obfs":"plain",
+    "obfs_param":"",
+    "method":"rc4-md5"
+}

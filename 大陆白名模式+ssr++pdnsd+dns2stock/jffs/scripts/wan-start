@@ -1,0 +1,16 @@
+#!/bin/sh
+killall dnsmasq  >/dev/null 2>&1
+dnsmasq -c 1500 -C /jffs/configs/dnsmasq.conf --log-async  >/dev/null 2>&1
+
+killall rss-local  >/dev/null 2>&1
+killall rss-redir  >/dev/null 2>&1
+killall dns2socks  >/dev/null 2>&1
+killall pdnsd  >/dev/null 2>&1
+/jffs/ss/bin/rss-local -b 0.0.0.0 -l 23456 -c /jffs/ss/configs/ss.json -u -f /var/run/sslocal1.pid  >/dev/null 2>&1
+/jffs/ss/bin/rss-redir -b 0.0.0.0 -c /jffs/ss/configs/ss.json -f /var/run/shadowsocks.pid  >/dev/null 2>&1
+/jffs/ss/bin/dns2socks 127.0.0.1:23456 8.8.8.8:53 127.0.0.1:1099  >/dev/null 2>&1
+/jffs/ss/bin/pdnsd --daemon -c /jffs/ss/configs/pdnsd.conf -p /var/run/pdnsd.pid  >/dev/null 2>&1
+
+sh /jffs/ss/ss-firewall >/dev/null 2>&1
+
+
