@@ -84,10 +84,10 @@
 - 刷机完成后。第一件事情，需要开启 =SSH= 及 =Telnet= 。 建议开启 =SSH= ，更方便和安全。
 - 进入路由器后台，并点击 =系统设置= 菜单
 - 依次点击 =系统设置=
-Enable SSH ： 选择 =是= 或 =LAN only=
-SSH Port   ： 默认22
-Allow Password Login  ： =是=
-Authorized Keys ： 建议设置key，访问方便。
+  + Enable SSH ： 选择 =是= 或 =LAN only=
+  + SSH Port   ： 默认22
+  + Allow Password Login  ： =是=
+  + Authorized Keys ： 建议设置key，访问方便。
 
 
 
